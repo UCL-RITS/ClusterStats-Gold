@@ -7,11 +7,16 @@ import datetime
 import argparse
 import configparser
 import csv
+import gold_queries
 
 def getargs(argv):
     parser = argparse.ArgumentParser(description="Show allocation usage data from the Gold database")
-    parser.add_argument("--institutes", help="Get usage data for all institutes", action='store_true')
+    parser.add_argument("--all", help="Get usage data for all institutes for all time", action='store_true')
+    parser.add_argument("--start", help="Get allocations from this start date yyyy-mm-dd")
+    parser.add_argument("--end", help="Get allocations until this end date yyyy-mm-dd")
+    parser.add_argument("--project", help="Get usage data for projects beginning with this name only")
     parser.add_argument("--csv", metavar="csvfile", help="Write results to csv, with the given filename")
+    parser.add_argument("--debug", action='store_true')
 
     # Show the usage if no arguments are supplied
     if len(sys.argv[1:]) < 1:
@@ -22,21 +27,6 @@ def getargs(argv):
     # contains only the attributes for the main parser and the subparser that was used
     return parser.parse_args()
 # end getargs
-
-# Get allocation usage data for all institutes for all time.
-# Order by allocation start, end and then project name 
-# (as first allocation all starts on same date).
-def gold_by_allocation_period_query():
-    query = ("""SELECT j.g_project, sum(j.g_charge), r.g_id as date_alloc, r.g_account,
-                       a.g_start_time, a.g_end_time, count(*) as num_jobs
-                FROM g_job AS j
-                INNER JOIN g_reservation_allocation AS r
-                  ON j.g_request_id = r.g_request_id
-                INNER JOIN g_allocation AS a
-                  ON date_alloc = a.g_id
-                GROUP BY date_alloc 
-                ORDER BY a.g_start_time, a.g_end_time, j.g_project""")
-    return query
 
 
 # Main function
@@ -49,6 +39,7 @@ if __name__ == '__main__':
     except ValueError as err:
         print(err)
         exit(1)
+    print(args)
 
     # read the config file    
     try:
@@ -64,8 +55,8 @@ if __name__ == '__main__':
         conn = sqlite3.connect(db)
         cursor = conn.cursor()
 
-        if (args.institutes):
-            cursor.execute(gold_by_allocation_period_query())
+        if (args.all):
+            cursor.execute(gold_queries.gold_by_all_allocation_periods())
 
         rows = cursor.fetchall()
 
