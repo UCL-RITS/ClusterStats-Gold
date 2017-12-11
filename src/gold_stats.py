@@ -2,6 +2,7 @@
 
 # Connects to a Gold sqlite3 database.
 
+import sys
 import sqlite3
 import datetime
 import argparse
@@ -9,7 +10,7 @@ import configparser
 import csv
 import gold_queries
 
-def getargs(argv):
+def getargs():
     parser = argparse.ArgumentParser(description="Show allocation usage data from the Gold database")
     parser.add_argument("--all", help="Get usage data for all institutes for all time", action='store_true')
     parser.add_argument("--start", help="Get allocations from this start date yyyy-mm-dd")
@@ -33,7 +34,7 @@ def getargs(argv):
 if __name__ == '__main__':
 
     try:
-        args = getargs(argv)
+        args = getargs()
         # make a dictionary from args to make string substitutions doable by key name
         args_dict = vars(args)
     except ValueError as err:
@@ -66,7 +67,7 @@ if __name__ == '__main__':
         if (args.csvfile != None):
             if (args.debug):
                 print("Attempting to write to " + csvfile)
-            csvwriter = csv.writer(open(csvfile, newline='', encoding='utf-8', "w"))
+            csvwriter = csv.writer(open(csvfile, "w", newline='', encoding='utf-8'))
             csvwriter.writerows(rows)
 
     except (sqlite3.Error, csv.Error) as err:
