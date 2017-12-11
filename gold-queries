@@ -1,0 +1,15 @@
+#!/bin/bash 
+# wrapper for python3 thomas script
+
+# Source global definitions
+if [ -f /etc/bashrc ]; then
+        . /etc/bashrc
+fi
+
+module load gcc-libs
+module load python3/recommended
+
+# get script location
+DIR=$(dirname "$(readlink -f "$0")")
+$DIR/src/gold_stats.py "$@"
+

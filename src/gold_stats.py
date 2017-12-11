@@ -62,7 +62,10 @@ if __name__ == '__main__':
 
         # may want to process data in some way before output?
 
+        # write to specified csv file
         if (args.csvfile != None):
+            if (args.debug):
+                print("Attempting to write to " + csvfile)
             csvwriter = csv.writer(open(csvfile, newline='', encoding='utf-8', "w"))
             csvwriter.writerows(rows)
 
